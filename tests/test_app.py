@@ -26,3 +26,20 @@ def test_invalid_measurement_count():
 # - A missing "measurements" key returns HTTP 400.
 # - A nonnumeric measurement returns HTTP 400.
 # - A measurement of zero or a very large number returns HTTP 400.
+
+def test_home_page():
+    client = app.test_client()
+    response = client.get("/")
+    assert response.status_code == 200
+
+def test_random_page():
+    client = app.test_client()
+    response = client.get("/should_not_exist")
+    assert response.status_code != 200
+
+def test_large_measurement():
+    """A request with too large number should be rejected"""
+    client = app.test_client()
+    response = client.post("/predict", json={"measurements": [9999, 9999]})
+    assert response.status_code == 400
+    assert "error" in response.get_json()
